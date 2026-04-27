@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "db-migrator"
+version = "0.1.0"
+description = "A clean Alembic-backed database migration tool with rollback support"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "alembic>=1.13",
+    "sqlalchemy>=2.0",
+]
+
+[project.scripts]
+db-migrator = "db_migrator.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-mock>=3.14"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
