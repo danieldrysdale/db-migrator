@@ -25,19 +25,19 @@ def upgrade() -> None:
         sa.Column(
             "product_id",
             sa.Integer,
-            sa.ForeignKey("products.id", ondelete="RESTRICT"),
+            sa.ForeignKey("products.id", ondelete="NO ACTION"),
             nullable=False,
         ),
         sa.Column(
             "from_location_id",
             sa.Integer,
-            sa.ForeignKey("locations.id", ondelete="RESTRICT"),
+            sa.ForeignKey("locations.id", ondelete="NO ACTION"),
             nullable=True,
         ),
         sa.Column(
             "to_location_id",
             sa.Integer,
-            sa.ForeignKey("locations.id", ondelete="RESTRICT"),
+            sa.ForeignKey("locations.id", ondelete="NO ACTION"),
             nullable=True,
         ),
         sa.Column("movement_type", sa.String(20), nullable=False),

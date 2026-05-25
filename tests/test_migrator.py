@@ -10,7 +10,7 @@ class TestUpgrade:
     def test_upgrade_to_head_applies_all_migrations(self, engine, migrations_dir):
         migrator.upgrade(engine, migrations_dir)
         current = migrator.current_revision(engine)
-        assert current == "0003_add_movements"
+        assert current == "0004_wcs_schema"
 
     def test_upgrade_creates_expected_tables(self, upgraded_engine):
         tables = inspect(upgraded_engine).get_table_names()
@@ -31,16 +31,17 @@ class TestUpgrade:
     def test_upgrade_is_idempotent(self, engine, migrations_dir):
         migrator.upgrade(engine, migrations_dir)
         migrator.upgrade(engine, migrations_dir)  # should not raise
-        assert migrator.current_revision(engine) == "0003_add_movements"
+        assert migrator.current_revision(engine) == "0004_wcs_schema"
 
 
 class TestDowngrade:
     def test_downgrade_one_step(self, upgraded_engine, migrations_dir):
         migrator.downgrade(upgraded_engine, migrations_dir, "-1")
         current = migrator.current_revision(upgraded_engine)
-        assert current == "0002_add_stock"
+        assert current == "0003_add_movements"
         tables = inspect(upgraded_engine).get_table_names()
-        assert "movements" not in tables
+        assert "movements" in tables                    # still there
+        assert "wcs_zone" not in tables                 # wcs tables gone
 
     def test_downgrade_to_base_removes_all_tables(self, upgraded_engine, migrations_dir):
         migrator.downgrade(upgraded_engine, migrations_dir, "base")
@@ -54,7 +55,7 @@ class TestDowngrade:
         migrator.downgrade(upgraded_engine, migrations_dir, "base")
         assert migrator.current_revision(upgraded_engine) is None
         migrator.upgrade(upgraded_engine, migrations_dir)
-        assert migrator.current_revision(upgraded_engine) == "0003_add_movements"
+        assert migrator.current_revision(upgraded_engine) == "0004_wcs_schema"
 
 
 class TestStatus:
@@ -69,7 +70,7 @@ class TestStatus:
 class TestHistory:
     def test_history_returns_all_revisions(self, engine, migrations_dir):
         history = migrator.get_history(engine, migrations_dir)
-        assert len(history) == 3
+        assert len(history) == 4
 
     def test_history_shows_pending_before_upgrade(self, engine, migrations_dir):
         history = migrator.get_history(engine, migrations_dir)
@@ -87,9 +88,9 @@ class TestHistory:
         assert current_entries[0]["revision"] == "0002_add_stock"
 
     def test_pending_count_decreases_after_upgrade(self, engine, migrations_dir):
-        assert migrator.pending_count(engine, migrations_dir) == 3
+        assert migrator.pending_count(engine, migrations_dir) == 4
         migrator.upgrade(engine, migrations_dir, "0001_initial")
-        assert migrator.pending_count(engine, migrations_dir) == 2
+        assert migrator.pending_count(engine, migrations_dir) == 3
         migrator.upgrade(engine, migrations_dir)
         assert migrator.pending_count(engine, migrations_dir) == 0
 
